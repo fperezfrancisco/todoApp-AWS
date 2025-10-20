@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  user-service:
+    build: ../services/user
+    ports:
+      - "4000:4000"
+  task-service:
+    build: ../services/task
+    ports:
+      - "4001:4001"
