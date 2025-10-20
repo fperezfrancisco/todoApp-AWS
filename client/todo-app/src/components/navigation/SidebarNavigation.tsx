@@ -167,12 +167,17 @@ const SidebarNavigation = (props: Props) => {
           isOpen ? "px-4 justify-start" : "px-2 justify-center"
         } border-t border-neutral-200 items-center gap-2`}
       >
-        <div className="size-[32px] bg-neutral-400 rounded-full"></div>
-        {isOpen && (
-          <div className="text-sm font-medium hover:text-neutral-400">
-            User Name
-          </div>
-        )}
+        <Link
+          href={"/dashboard/profile"}
+          className="flex items-center w-full gap-2"
+        >
+          <div className="size-[32px] bg-neutral-400 rounded-full"></div>
+          {isOpen && (
+            <div className="text-sm font-medium hover:text-neutral-400">
+              User Name
+            </div>
+          )}
+        </Link>
       </div>
     </div>
   );

@@ -7,14 +7,14 @@ export default function Home() {
   const router = useRouter();
 
   const handleLogin = () => {
-    signIn("auth0", { redirect: true, callbackUrl: "/" });
+    signIn("auth0", { redirect: true, callbackUrl: "/dashboard/home" });
   };
 
   const handleSignup = async () => {
     await signOut({ redirect: false, callbackUrl: "/api/auth/signout" });
     signIn("auth0", {
       redirect: true,
-      callbackUrl: "/",
+      callbackUrl: "/dashboard/home",
       screen_hint: "signup",
     });
   };
