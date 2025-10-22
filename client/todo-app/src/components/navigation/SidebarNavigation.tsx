@@ -7,6 +7,8 @@ import {
   ListCheckIcon,
   PencilIcon,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -14,6 +16,15 @@ type Props = {};
 
 const SidebarNavigation = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+  if (session?.user) {
+    const { id, email, name, image } = session.user as {
+      id: string;
+      email: string;
+      name: string;
+      image: string;
+    };
+  }
 
   return (
     <div
@@ -73,7 +84,7 @@ const SidebarNavigation = (props: Props) => {
             isOpen ? "justify-start" : "justify-center"
           }`}
         >
-          <Link href={"/dashboard/list/1"}>
+          <Link href={"/dashboard/list/new"}>
             <PencilIcon className="hover:text-neutral-400" size={16} />
           </Link>
           {isOpen && (
@@ -171,10 +182,20 @@ const SidebarNavigation = (props: Props) => {
           href={"/dashboard/profile"}
           className="flex items-center w-full gap-2"
         >
-          <div className="size-[32px] bg-neutral-400 rounded-full"></div>
+          <div className="size-[32px] bg-neutral-400 rounded-full">
+            {session?.user.image && (
+              <Image
+                src={session.user.image}
+                alt="Profile Picture"
+                className="w-full h-full object-cover rounded-full"
+                width={200}
+                height={200}
+              />
+            )}
+          </div>
           {isOpen && (
             <div className="text-sm font-medium hover:text-neutral-400">
-              User Name
+              {session?.user?.name || "User Name"}
             </div>
           )}
         </Link>

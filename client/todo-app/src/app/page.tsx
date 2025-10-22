@@ -1,5 +1,5 @@
 "use client";
-import { signIn, signOut } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -7,13 +7,17 @@ export default function Home() {
   const router = useRouter();
 
   const handleLogin = () => {
-    signIn("auth0", { redirect: true, callbackUrl: "/dashboard/home" });
+    signIn("auth0", {
+      prompt: "login",
+      redirect: true,
+      callbackUrl: "/dashboard/home",
+    });
   };
 
-  const handleSignup = async () => {
-    await signOut({ redirect: false, callbackUrl: "/api/auth/signout" });
+  const handleSignup = () => {
     signIn("auth0", {
       redirect: true,
+      prompt: "login",
       callbackUrl: "/dashboard/home",
       screen_hint: "signup",
     });

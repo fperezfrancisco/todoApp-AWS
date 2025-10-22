@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:16
 
   # Set working directory inside the container
   WORKDIR /app
@@ -7,7 +7,7 @@ FROM node:18-alpine
   COPY package*.json ./
 
   # Install dependencies
-  RUN npm install
+  RUN npm install --build-from-source
 
   # Copy the rest of the application code
   COPY . .
