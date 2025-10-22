@@ -1,6 +1,12 @@
 "use client";
+import { POST_TASKLISTS, POST_TASKS } from "@/app/api/backend-proxy/route";
 import { MoreHorizontal } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+
+const BASE_TASK =
+  process.env.NEXT_PUBLIC_TASK_SERVICE_URL || "http://localhost:4001";
 
 type Props = {};
 
@@ -147,6 +153,26 @@ const page = (props: Props) => {
   const [tasks, setTasks] = useState<string[]>([]);
   const [newTask, setNewTask] = useState("");
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const router = useRouter();
+
+  const saveDataSession = ({
+    name,
+    tags,
+    tasks,
+  }: {
+    name: string;
+    tags: string[];
+    tasks: string[];
+  }) => {
+    const taskListData = {
+      name: name,
+      tags: tags,
+      tasks: tasks,
+    };
+    sessionStorage.setItem("currentTaskList", JSON.stringify(taskListData));
+  };
 
   const handleDeleteTag = (tagToDelete: string) => {
     setTags((prevTags) => prevTags.filter((tag) => tag !== tagToDelete));
@@ -156,6 +182,11 @@ const page = (props: Props) => {
     if (newTask.trim() !== "") {
       setTasks((prev) => [...prev, newTask]);
       setNewTask("");
+      saveDataSession({
+        name: taskListName,
+        tags: tags,
+        tasks: [...tasks, newTask],
+      });
     }
   };
 
@@ -164,8 +195,72 @@ const page = (props: Props) => {
       setTags((prev) => [...prev, newTag]);
       setNewTag("");
       setIsTagModalOpen(false);
+      saveDataSession({
+        name: taskListName,
+        tags: [...tags, newTag],
+        tasks: tasks,
+      });
     }
   }, [newTag]);
+
+  useEffect(() => {
+    const savedData = sessionStorage.getItem("currentTaskList");
+    if (savedData) {
+      const { name, tags, tasks } = JSON.parse(savedData);
+      setTaskListName(name);
+      setTags(tags);
+      setTasks(tasks);
+    }
+  }, []);
+
+  const handleCreateTaskList = async () => {
+    const taskListData = {
+      title: taskListName,
+      userId: session?.user?.id,
+      completed: 0,
+      state: "active",
+      tags: tags,
+    };
+
+    const taskListResponse = await fetch(`${BASE_TASK}/api/v1/taskLists`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(taskListData),
+    });
+
+    if (!taskListResponse.ok) {
+      // Handle error
+      throw new Error("Failed to create task list");
+    }
+
+    const taskListResult = await taskListResponse.json();
+    const taskListId = taskListResult.id;
+    console.log(taskListResult);
+
+    await Promise.all(
+      tasks.map(async (task) => {
+        const taskData = {
+          task: task,
+          userId: session?.user?.id,
+          completed: 0,
+          taskListId: taskListId,
+        };
+        await fetch(`${BASE_TASK}/api/v1/tasks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(taskData),
+        });
+      })
+    );
+    // Clear session storage and reset form IF successfull
+    if (taskListResponse.ok) {
+      sessionStorage.removeItem("currentTaskList");
+      setTaskListName("");
+      setTags([]);
+      setTasks([]);
+      router.push(`/dashboard/list/${taskListId}`);
+    }
+  };
 
   return (
     <div className="w-full h-screen overflow-y-auto">
@@ -181,7 +276,14 @@ const page = (props: Props) => {
           <input
             type="text"
             value={taskListName}
-            onChange={(e) => setTaskListName(e.target.value)}
+            onChange={(e) => {
+              setTaskListName(e.target.value);
+              saveDataSession({
+                name: e.target.value,
+                tags: tags,
+                tasks: tasks,
+              });
+            }}
             placeholder="Task List Name..."
             className="border-b border-neutral-400 p-2 w-full py-4 mb-4 text-4xl font-medium"
           />
@@ -228,11 +330,22 @@ const page = (props: Props) => {
             ))}
           </ul>
           <div className="w-full my-8 flex items-center gap-4">
-            <button className="border border-neutral-200 text-sm flex flex-1 items-center justify-center rounded-md px-4 py-4 hover:bg-neutral-200 hover:text-black cursor-pointer">
+            <button
+              onClick={handleCreateTaskList}
+              className="border border-neutral-200 text-sm flex flex-1 items-center justify-center rounded-md px-4 py-4 hover:bg-neutral-200 hover:text-black cursor-pointer"
+            >
               Create Task List
             </button>
-            <button className="border border-neutral-200 text-sm flex flex-1 items-center justify-center rounded-md px-4 py-4 hover:bg-neutral-200 hover:text-black cursor-pointer">
-              Cancel
+            <button
+              onClick={() => {
+                sessionStorage.removeItem("currentTaskList");
+                setTaskListName("");
+                setTags([]);
+                setTasks([]);
+              }}
+              className="border border-neutral-200 text-sm flex flex-1 items-center justify-center rounded-md px-4 py-4 hover:bg-neutral-200 hover:text-black cursor-pointer"
+            >
+              Reset Form
             </button>
           </div>
         </div>
