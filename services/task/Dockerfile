@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16-bullseye
 
   # Set working directory inside the container
   WORKDIR /app
@@ -7,7 +7,7 @@ FROM node:16
   COPY package*.json ./
 
   # Install dependencies
-  RUN npm install --build-from-source
+  RUN apt-get update && apt-get install -y build-essential python3 && npm install --build-from-source
 
   # Copy the rest of the application code
   COPY . .

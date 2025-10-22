@@ -124,12 +124,12 @@ const SidebarNavigation = (props: Props) => {
                 isOpen ? "justify-start" : "justify-center"
               }`}
             >
-              <Link href={"/dashboard/list/1"}>
+              <Link href={"/dashboard/list/3"}>
                 <Hash className="hover:text-neutral-400" size={14} />
               </Link>
               {isOpen && (
                 <Link
-                  href={"/dashboard/list/new"}
+                  href={"/dashboard/list/3"}
                   className="text-sm font-medium hover:text-neutral-400"
                 >
                   Task Title
@@ -146,7 +146,7 @@ const SidebarNavigation = (props: Props) => {
               </Link>
               {isOpen && (
                 <Link
-                  href={"/dashboard/list/new"}
+                  href={"/dashboard/list/1"}
                   className="text-sm font-medium hover:text-neutral-400"
                 >
                   Task Title
@@ -158,12 +158,12 @@ const SidebarNavigation = (props: Props) => {
                 isOpen ? "justify-start" : "justify-center"
               }`}
             >
-              <Link href={"/dashboard/list/1"}>
+              <Link href={"/dashboard/list/2"}>
                 <Hash className="hover:text-neutral-400" size={14} />
               </Link>
               {isOpen && (
                 <Link
-                  href={"/dashboard/list/new"}
+                  href={"/dashboard/list/2"}
                   className="text-sm font-medium hover:text-neutral-400"
                 >
                   Task Title
